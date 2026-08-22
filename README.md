@@ -20,12 +20,10 @@ npm start
 ## Inspector
 
 ```bash
-npm run inspect
-# or
 npx @modelcontextprotocol/inspector node build/index.js
 ```
 
-## MCP config
+## MCP config (OpenCode / Claude Desktop)
 
 ```json
 {
@@ -39,10 +37,22 @@ npx @modelcontextprotocol/inspector node build/index.js
 }
 ```
 
-Supports `~/.waro/config.toml` profiles via `WARO_PROFILE` (ported from `waro-cli/src/config.rs` in Batch 3).
+Supports `~/.waro/config.toml` profiles via `WARO_PROFILE` (same as `waro-cli/src/config.rs`).
+
+## Tools (26)
+
+`waro_ping`, `waro_schema`, `sales_list|metrics|detail`, `customers_list|detail|orders|metrics`, `menu_products|recipes|modifiers`, `analytics_menu|food_cost|alerts|data_quality|cohort|waros|rfm|churn_risk`, `financial_products`, `waros_estimate|balances|customer`, `queries_schema|run`
+
+All tools return `waro.agent.v1` envelope; errors set `isError:true`.
+
+## Publish
+
+```bash
+npm publish --access public
+```
 
 ## Roadmap
 
-- Batch 1: scaffold + stdio transport (this)
-- Batch 2: `tools/list` from `contract.rs` (8 domains)
-- Batch 3: `tools/call` + `agent-json` + publish
+- Batch 1: scaffold + stdio
+- Batch 2: tools/list contracts
+- Batch 3: tools/call + auth + agent-json (this)
