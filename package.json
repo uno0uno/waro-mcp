@@ -1,0 +1,26 @@
+{
+  "name": "waro-mcp",
+  "version": "0.1.0",
+  "description": "Waro MCP server — MCP replacement for waro-cli, reusing Waro API contracts",
+  "type": "module",
+  "bin": {
+    "waro-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod 755 build/index.js",
+    "start": "node build/index.js",
+    "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
+  },
+  "files": ["build"],
+  "keywords": ["mcp", "waro", "model-context-protocol"],
+  "license": "MIT",
+  "repository": "uno0uno/waro-mcp",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
