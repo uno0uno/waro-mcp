@@ -37,7 +37,7 @@ npx @modelcontextprotocol/inspector node build/index.js
 }
 ```
 
-Supports `~/.waro/config.toml` profiles via `WARO_PROFILE` (same as `waro-cli/src/config.rs`).
+Default `WARO_API_URL` is `https://api.warolabs.com` — override via `WARO_API_URL` env or profile `api_url` in `~/.waro/config.toml`. Supports `WARO_PROFILE` (same as `waro-cli/src/config.rs:28`).
 
 ## Tools (26)
 
