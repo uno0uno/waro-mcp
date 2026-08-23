@@ -1,0 +1,38 @@
+# Compact Codex plan for wr-plan / wr-exec. Keep <=80 lines.
+issue: 3
+title: "MCP default WARO_API_URL = https://api.warolabs.com"
+repo: waro-mcp
+repo_remote: uno0uno/waro-mcp
+cwd: /Users/saifer/Documents/WEBS/WARO COLOMBIA/waro-mcp
+stack: ts-mcp
+branch: wr-3-mcp-default-url
+
+paths:
+  - waro-mcp/src/config.ts
+  - waro-mcp/README.md
+  - waro-mcp/SKILL.md
+
+ac:
+  - src/config.ts:75 y :79 default = https://api.warolabs.com (profile y env fallback)
+  - README.md / SKILL.md documentan default URL y override via WARO_API_URL / profile api_url
+  - npm run build y tools/list smoke ok; loadConfig sin WARO_API_KEY lanza error key
+
+out_of_scope:
+  - client.ts / auth scopes / publish npm
+
+hints:
+  entry: "waro-mcp/src/config.ts:75"
+  pattern: "waro-mcp/src/config.ts:79 nonEmptyEnv WARO_API_URL ?? https://api.warolabs.com"
+  tests: "npm run build"
+
+risk:
+  sensitive: false
+  areas:
+    - config default fallback
+
+skip:
+  audits:
+    - no auth change
+
+next:
+  after_pr: ""

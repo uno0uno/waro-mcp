@@ -16,7 +16,7 @@ Replaces `waro-cli/SKILL.md` for MCP hosts.
 }
 ```
 
-Or use `~/.waro/config.toml` profiles via `WARO_PROFILE`.
+Default `WARO_API_URL=https://api.warolabs.com` — override via `WARO_API_URL` env or `api_url` in `~/.waro/config.toml` profiles. Or use `WARO_PROFILE`.
 
 ## Invariants
 
