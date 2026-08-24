@@ -7,8 +7,9 @@
     "waro-mcp": "./build/index.js"
   },
   "scripts": {
-    "build": "tsc && chmod 755 build/index.js",
+    "build": "tsc && chmod 755 build/index.js build/http.js",
     "start": "node build/index.js",
+    "start:http": "node build/http.js",
     "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
   },
   "files": ["build"],

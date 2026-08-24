@@ -1,0 +1,20 @@
+services:
+  waro-mcp:
+    build: .
+    image: waro-mcp:latest
+    container_name: waro-mcp
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8090:8090"
+    environment:
+      - WARO_API_URL=${WARO_API_URL:-https://api.warolabs.com}
+      - WARO_API_KEY=${WARO_API_KEY}
+      - WARO_PROFILE=${WARO_PROFILE:-}
+      - MCP_PORT=8090
+      - MCP_PATH=/mcp
+      - MCP_AUTH_TOKEN=${MCP_AUTH_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

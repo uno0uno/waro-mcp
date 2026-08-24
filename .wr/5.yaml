@@ -1,0 +1,46 @@
+# Compact Codex plan for wr-plan / wr-exec. Keep <=80 lines.
+issue: 5
+title: "Exponer waro-mcp como MCP remoto (HTTP) para LLMs"
+repo: waro-mcp
+repo_remote: uno0uno/waro-mcp
+cwd: /Users/saifer/Documents/WEBS/WARO COLOMBIA/waro-mcp
+stack: node
+branch: wr-5-mcp-http
+
+paths:
+  - src/http.ts
+  - src/server.ts
+  - src/index.ts
+  - package.json
+  - Dockerfile
+  - docker-compose.yml
+  - deploy/nginx-mcp.conf
+  - README.md
+
+ac:
+  - "HTTP entrypoint src/http.ts con StreamableHTTPServerTransport stateless, reutiliza contratos/tools (26 tools) via src/server.ts compartido"
+  - "Env compatible WARO_API_URL/WARO_API_KEY/WARO_PROFILE (~/.waro/config.toml) configurable por env"
+  - "Dockerfile + docker-compose (127.0.0.1:8090) sin node local"
+  - "Nginx vhost mcp.warolabs.com -> 127.0.0.1:8090 con cloudfront-origin-guard"
+  - "Auth Bearer opcional via MCP_AUTH_TOKEN"
+  - "Docs README remote MCP + build OK"
+
+out_of_scope:
+  - supergateway wrapper
+  - cambios api-warolabs
+  - validación QA manual extensa
+
+hints:
+  entry: "src/http.ts -> StreamableHTTPServerTransport"
+  pattern: "src/index.ts:31-92 McpServer registerTool reutilizado en src/server.ts"
+  tests: "npm run build && node build/http.js --help (smoke) + curl /health"
+
+risk:
+  sensitive: false
+  areas: ["WARO_API_KEY exposure via auth"]
+
+skip:
+  audits: []
+
+next:
+  after_pr: "Deploy en warolabs-hostinger: docker compose up -d + nginx + DNS mcp.warolabs.com"
