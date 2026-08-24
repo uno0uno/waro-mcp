@@ -23,7 +23,27 @@ npm start
 npx @modelcontextprotocol/inspector node build/index.js
 ```
 
+## Run (HTTP — remote for LLMs)
+
+```bash
+# env: WARO_API_KEY required, same config as stdio
+MCP_PORT=8090 MCP_PATH=/mcp MCP_AUTH_TOKEN=secret node build/http.js
+# health
+curl http://127.0.0.1:8090/health
+# MCP endpoint
+curl -H "Authorization: Bearer $MCP_AUTH_TOKEN" http://127.0.0.1:8090/mcp
+```
+
+Docker (hostinger):
+
+```bash
+WARO_API_KEY=waro_sk_xxx MCP_AUTH_TOKEN=secret docker compose up -d --build
+# nginx: deploy/nginx-mcp.conf -> mcp.warolabs.com -> 127.0.0.1:8090 (CloudFront + origin-guard)
+```
+
 ## MCP config (OpenCode / Claude Desktop)
+
+Stdio (local):
 
 ```json
 {
@@ -32,6 +52,20 @@ npx @modelcontextprotocol/inspector node build/index.js
       "command": "node",
       "args": ["/ABSOLUTE/PATH/waro-mcp/build/index.js"],
       "env": { "WARO_API_KEY": "waro_sk_xxx", "WARO_API_URL": "https://api.warolabs.com" }
+    }
+  }
+}
+```
+
+Remote (HTTP):
+
+```json
+{
+  "mcpServers": {
+    "waro-mcp": {
+      "type": "http",
+      "url": "https://mcp.warolabs.com/mcp",
+      "headers": { "Authorization": "Bearer $MCP_AUTH_TOKEN" }
     }
   }
 }
