@@ -11,12 +11,12 @@ const AUTH_TOKEN = process.env.MCP_AUTH_TOKEN?.trim();
 
 function extractWaroKey(req: http.IncomingMessage): string | undefined {
   const auth = (req.headers.authorization ?? "").trim();
-  if (auth.startsWith("Bearer ")) {
+  if (auth.toLowerCase().startsWith("bearer ")) {
     const token = auth.slice(7).trim();
-    if (token.startsWith("waro_")) return token;
+    if (token.startsWith("waro_sk_")) return token;
   }
   const xKey = (req.headers["x-api-key"] as string | undefined)?.trim();
-  if (xKey?.startsWith("waro_")) return xKey;
+  if (xKey?.startsWith("waro_sk_")) return xKey;
   return undefined;
 }
 
@@ -42,24 +42,27 @@ async function handler(req: http.IncomingMessage, res: http.ServerResponse) {
   const waroKey = extractWaroKey(req);
   const legacyOk = isLegacyAuthorized(req);
 
-  // Require waro_sk per-request unless legacy MCP_AUTH_TOKEN or fallback env exists
   if (!waroKey && !legacyOk) {
-    // Try fallback env: if server has WARO_API_KEY env, allow without header (legacy single-tenant)
+    res.writeHead(401, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "unauthorized", message: "API key requerida. Usa Authorization: Bearer waro_sk_xxx o X-API-Key: waro_sk_xxx" }));
+    return;
+  }
+  if (!waroKey && legacyOk) {
+    // Legacy MCP_AUTH_TOKEN without waro_sk: allow only if server has fallback env (single-tenant deprecated)
     try {
       loadConfig();
     } catch {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "unauthorized", message: "API key requerida. Usa Authorization: Bearer waro_sk_xxx o X-API-Key: waro_sk_xxx" }));
+      res.end(JSON.stringify({ error: "unauthorized", message: "API key requerida. Usa Authorization: Bearer waro_sk_xxx" }));
       return;
     }
   }
 
   const getConfig = waroKey
     ? () => {
-        const base = (() => {
-          try { return loadConfig(); } catch { return { apiUrl: process.env.WARO_API_URL ?? "https://api.warolabs.com", apiKey: waroKey } as any; }
-        })();
-        return { apiUrl: base.apiUrl, apiKey: waroKey, profileName: base.profileName };
+        const apiUrl = (process.env.WARO_API_URL ?? "").trim() || "https://api.warolabs.com";
+        // Do not reuse loadConfig apiUrl when waroKey present to avoid mixing tenant profile URL with different tenant key
+        return { apiUrl, apiKey: waroKey };
       }
     : undefined;
 
