@@ -23,22 +23,27 @@ npm start
 npx @modelcontextprotocol/inspector node build/index.js
 ```
 
-## Run (HTTP — remote for LLMs)
+## Run (HTTP — remote for LLMs, multitenant)
 
 ```bash
-# env: WARO_API_KEY required, same config as stdio
-MCP_PORT=8090 MCP_PATH=/mcp MCP_AUTH_TOKEN=secret node build/http.js
-# health
+# Per-request: el cliente manda su waro_sk, no necesitas WARO_API_KEY en env
+MCP_PORT=8090 MCP_PATH=/mcp node build/http.js
+# health (sin auth)
 curl http://127.0.0.1:8090/health
-# MCP endpoint
-curl -H "Authorization: Bearer $MCP_AUTH_TOKEN" http://127.0.0.1:8090/mcp
+# MCP con tenant del cliente
+curl -H "Authorization: Bearer waro_sk_TU_KEY" -H "Accept: application/json, text/event-stream" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' \
+  http://127.0.0.1:8090/mcp
+# Fallback legacy single-tenant (si no mandas waro_sk, usa env)
+WARO_API_KEY=waro_sk_xxx MCP_PORT=8090 node build/http.js
 ```
 
-Docker (hostinger):
+Docker (hostinger — sin MCP_AUTH_TOKEN requerido):
 
 ```bash
-WARO_API_KEY=waro_sk_xxx MCP_AUTH_TOKEN=secret docker compose up -d --build
+docker compose up -d --build
 # nginx: deploy/nginx-mcp.conf -> mcp.warolabs.com -> 127.0.0.1:8090 (CloudFront + origin-guard)
+# Opcional legacy: MCP_AUTH_TOKEN=secret solo si quieres auth extra además de waro_sk
 ```
 
 ## MCP config (OpenCode / Claude Desktop)
@@ -57,7 +62,7 @@ Stdio (local):
 }
 ```
 
-Remote (HTTP):
+Remote (HTTP — multitenant, el cliente usa su propia waro_sk):
 
 ```json
 {
@@ -65,11 +70,14 @@ Remote (HTTP):
     "waro-mcp": {
       "type": "http",
       "url": "https://mcp.warolabs.com/mcp",
-      "headers": { "Authorization": "Bearer $MCP_AUTH_TOKEN" }
+      "headers": { "Authorization": "Bearer waro_sk_TU_KEY" }
     }
   }
 }
 ```
+
+Legacy (MCP_AUTH_TOKEN solo si el servidor lo exige, no es el waro_sk):
+`Authorization: Bearer $MCP_AUTH_TOKEN` — deprecated, usa `waro_sk`.
 
 Default `WARO_API_URL` is `https://api.warolabs.com` — override via `WARO_API_URL` env or profile `api_url` in `~/.waro/config.toml`. Supports `WARO_PROFILE` (same as `waro-cli/src/config.rs:28`).
 

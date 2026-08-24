@@ -2,15 +2,15 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { CONTRACTS } from "./contracts.js";
 import { validateDate, validateEnum, validateFields, validateUuid } from "./validate.js";
-import { loadConfig } from "./config.js";
+import { loadConfig, type WaroConfig } from "./config.js";
 import { WaroClient } from "./client.js";
 import { toAgentJson, toAgentError, errorKind } from "./output.js";
 
-export function createWaroServer(): McpServer {
+export function createWaroServer(getConfig?: () => WaroConfig): McpServer {
   const server = new McpServer({ name: "waro-mcp", version: "0.1.0" });
 
   function getClient(): WaroClient {
-    const cfg = loadConfig();
+    const cfg = getConfig ? getConfig() : loadConfig();
     return new WaroClient(cfg);
   }
 

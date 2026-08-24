@@ -1,0 +1,43 @@
+# Compact Codex plan for wr-plan / wr-exec. Keep <=80 lines.
+issue: 7
+title: "fix(mcp): multitenant per-request via WARO_API_KEY del cliente"
+repo: waro-mcp
+repo_remote: uno0uno/waro-mcp
+cwd: /Users/saifer/Documents/WEBS/WARO COLOMBIA/waro-mcp
+stack: node
+branch: wr-7-mcp-multitenant
+
+paths:
+  - src/http.ts
+  - src/server.ts
+  - src/config.ts
+  - src/client.ts
+  - README.md
+  - docker-compose.yml
+
+ac:
+  - "src/http.ts extrae waro_sk de Authorization: Bearer / X-API-Key por request, no usa MCP_AUTH_TOKEN como principal"
+  - "Propaga key por request a WaroClient (factory por request), fallback loadConfig() si no hay header (stdio/legacy)"
+  - "401 claro si falta/invalida: API key requerida. Usa Authorization: Bearer waro_sk_xxx"
+  - "MCP_AUTH_TOKEN deprecated optional (solo si se setea, check adicional)"
+  - "README remoto con waro_sk del cliente + docker-compose env optional"
+
+out_of_scope:
+  - cambios api-warolabs
+  - rotación keys
+  - CloudFront
+
+hints:
+  entry: "src/http.ts -> extractApiKey mirror app/core/middleware.py:150"
+  pattern: "src/server.ts:12 getClient() -> getClientForRequest(req)"
+  tests: "npm run build && MCP per-request curl con dos waro_sk tenants -> sales_metrics aislado"
+
+risk:
+  sensitive: true
+  areas: ["tenant isolation", "auth", "secrets"]
+
+skip:
+  audits: []
+
+next:
+  after_pr: "Deploy hostinger con waro_sk por cliente, sin MCP_AUTH_TOKEN requerido"
